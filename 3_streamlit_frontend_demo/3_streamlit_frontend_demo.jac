@@ -1,8 +1,8 @@
 import:py streamlit as st;
 
-import:py from jaclang.core.llms, Groq;
+import:py from jaclang.core.llms, Anthropic;
 
-glob llm = Groq();
+glob llm = Anthropic();
 
 '''
 The by LLM ability that generates the response to the query.
@@ -30,21 +30,20 @@ can main {
 
     # To input a new query
     if prompt := st.chat_input("What is up?") {
-    messages.append({"role": "user", "content": prompt});
-    with st.chat_message("user"){
-        st.markdown(prompt);
-    }
-
-    # Generating and writing the response 
-    with st.chat_message("assistant"){
-        response = answer_query(messages=[
+        messages.append({"role": "user", "content": prompt});
+        with st.chat_message("user"){
+            st.markdown(prompt);
+            }
+        # Generating and writing the response
+        with st.chat_message("assistant"){
+            response = answer_query(messages=[
                 {"role": m["role"], "content": m["content"]}
                 for m in messages
-            ]);
-        stream = st.write(response);
-    }
-
-    # Managing chat history
-    messages.append({"role": "assistant", "content": response});
-    }
+                ]);
+            stream = st.write(response);
+            }
+        # Managing chat history
+        messages.append({"role": "assistant", "content": response});
+        }
 }
+
