@@ -5,22 +5,6 @@ import:py from PIL, Image;
 
 glob llm1 = OpenAI(model_name='gpt-3.5-turbo');
 glob llm2 = OpenAI(model_name='gpt-4');
-
-    
-          
-            
-    
-
-          
-          Expand Down
-          
-            
-    
-
-          
-          Expand Up
-    
-    @@ -60,7 +61,6 @@ The create_session ability:
   
 # glob llm = Huggingface(model_name='nvidia/Llama3-ChatQA-1.5-8B');
 enum PR_states {
@@ -61,6 +45,7 @@ List of things to do by the user.
 node todo{
     has todo_list:list = [];
 }
+
 '''
 This is the chat walker which will be used to chat with the user.
 The create_session ability:
@@ -72,23 +57,6 @@ walker chat{
     can create_session with user entry;
 }
 
-
-    
-          
-            
-    
-
-          
-          Expand Down
-          
-            
-    
-
-          
-          Expand Up
-    
-    @@ -106,47 +106,30 @@ glob router_examples: 'Examples of routing of a query': dict[str, task_type] = {
-  
 '''
 This is where we create the graph.
 '''
@@ -97,6 +65,7 @@ walker create_graph{
     has todo_list:list = [];
     can generate_graph with `root entry;
 }
+
 '''
 This is the query walker which will be used to query a user input and generate a response.
 The init_query_engine ability:
@@ -114,11 +83,13 @@ walker query{
     has messages:list = [];
     can init_query_engine with session entry;
 }
+
 enum task_type {
     # RAG_type : 'Need to use Retrivable information in specific finacial articles' = "RAG",
     QA_TYPE : 'Need to use given user information' = "user_qa",
     TODO_TYPE : 'Need to use the todo list of the user' = "todo"
 }
+
 glob router_examples: 'Examples of routing of a query': dict[str, task_type] = {
     'When is my next check up?': task_type.TODO_TYPE,
     'How healthy am I?': task_type.QA_TYPE
@@ -181,6 +152,7 @@ walker save_data{
         disengage;
     }
 }
+
 can main() {
     :g: state;
 
@@ -198,24 +170,7 @@ can main() {
     st.title("Jac${Care}$");
 
     if state == PR_states.init_PR {
-        create_graph(   user_data = {
-
-    
-          
-            
-    
-
-          
-          Expand Down
-          
-            
-    
-
-          
-          Expand Up
-    
-    @@ -229,7 +208,7 @@ can main() {
-  
+        create_graph(   user_data = {  
                                     "age_years": 55,
                                     "Gender": "Male",
                                     "Height_cm": 175,
@@ -293,6 +248,7 @@ can main() {
         print('Invalid state');
     }
 }
+
 ## Implementations ==================================================================================================================
 :walker:chat:can:create_session {
         # Telescope into the nodes connected to the user node without walking.
@@ -305,13 +261,14 @@ can main() {
                             todo_list = todo_node.todo_list
                         );
         visit n;
-    }
+}
 
 :walker:chat:can:chat_session {
     # print(here.user_data);
     # print(here.todo_list);
     query() spawn here;
 }
+
 :walker:create_graph:can:generate_graph {
     end = here; # Assign the current root node (here) to end
     end ++> (end := user()); # Create a user node and connect it to the end node. Assign the new user node to the end.
@@ -319,6 +276,7 @@ can main() {
     end ++> todo(todo_list = self.todo_list); # Create a todo node with the todo list and connect it to the end node.
     chat() spawn [-->](`?user)[0]; # Spawn the chat walker with the user node.
 }
+
 :walker:query:can:init_query_engine {
     self.user_data:dict = here.user_data;
     self.todo_list:list = here.todo_list;
@@ -345,6 +303,7 @@ can main() {
     visit [-->];
     }
 }
+
 :node:router:can:route {
     print('route');
     task:task_type = self.router_with_llm(query = here.query, todo_list = here.todo_list, user_data = here.user_data);
@@ -394,3 +353,4 @@ can main() {
 :node:RAG_chat:can:run_RAG {
     print('routed --> RAG');
 }
+
